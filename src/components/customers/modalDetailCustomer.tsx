@@ -5,6 +5,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useEffect, useState } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { customerTypes, inChargeOptions, defaultForm } from './formConfig';
+import dayjs from 'dayjs';
 
 const getLabel = (options: { label: string; value: string }[], value: string) => {
     const found = options.find(opt => opt.value === value);
@@ -19,7 +20,7 @@ const ModalDetailCustomer = ({
     open: boolean;
     onClose: () => void;
     initialData?: any;
-}) => {
+}) => {    
     const [data, setData] = useState<CustomerFormData>(defaultForm);
 
     useEffect(() => {
@@ -30,7 +31,7 @@ const ModalDetailCustomer = ({
         <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/30 z-[99998]" />
-                <Dialog.Content className="fixed top-1/2 left-1/2 z-[99999] w-full max-w-2xl bg-white p-0 rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 h-fit overflow-auto scroll-auto">
+                <Dialog.Content className="fixed top-1/2 left-1/2 z-[99999] w-full max-w-2xl bg-white p-0 rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 overflow-auto scroll-auto h-[90vh]">
                     <div className="relative p-0">
                         <div className="flex justify-between items-center bg-blue-50 p-5">
                             <div className="border-b border-gray-100 rounded-t-lg">
@@ -60,6 +61,11 @@ const ModalDetailCustomer = ({
                                     <DetailField label="Mã khách hàng" value={data.code} />
                                     <DetailField label="Người phụ trách" value={getLabel(inChargeOptions, data.inCharge)} />
                                     <DetailField label="Phân loại khách hàng" value={getLabel(customerTypes, data.type)} />
+                                    <DetailField label="Người tạo" value={data.createdBy} />
+                                    <DetailField
+                                        label="Ngày tạo"
+                                        value={data.createdAt ? dayjs(data.createdAt).format('DD/MM/YYYY') : undefined}
+                                    />
                                 </div>
                             </div>
 

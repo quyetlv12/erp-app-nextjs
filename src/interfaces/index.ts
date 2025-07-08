@@ -1,5 +1,5 @@
 export interface CustomerFormData {
-    id?: number;
+    id? : any;
     code: string;
     inCharge: string;
     type: string;
@@ -11,4 +11,6 @@ export interface CustomerFormData {
     email: string;
     phone: string;
     address: string;
+    createdBy? : string;
+    createdAt? : string;
 }
