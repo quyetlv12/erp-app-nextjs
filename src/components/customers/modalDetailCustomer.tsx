@@ -30,7 +30,7 @@ const ModalDetailCustomer = ({
         <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
             <Dialog.Portal>
                 <Dialog.Overlay className="fixed inset-0 bg-black/30 z-[99998]" />
-                <Dialog.Content className="fixed top-1/2 left-1/2 z-[99999] w-full max-w-2xl bg-white p-0 rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 h-[90vh] overflow-auto scroll-auto">
+                <Dialog.Content className="fixed top-1/2 left-1/2 z-[99999] w-full max-w-2xl bg-white p-0 rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 h-fit overflow-auto scroll-auto">
                     <div className="relative p-0">
                         <div className="flex justify-between items-center bg-blue-50 p-5">
                             <div className="border-b border-gray-100 rounded-t-lg">
