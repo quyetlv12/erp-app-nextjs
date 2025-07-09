@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { LogOutIcon, SettingsIcon, UserIcon } from "./icons";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../../../../../stores/authStore";
+import { useAuth } from "../../../../stores/authStore";
 
 export function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);

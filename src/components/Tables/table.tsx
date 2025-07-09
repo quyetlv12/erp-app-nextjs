@@ -25,7 +25,6 @@ const TableCustom = ({ data, columns }: CustomerTableProps) => {
             <Table>
                 <TableHeader>
                     <TableRow className="border-none bg-[#F7F9FC] dark:bg-dark-2 [&>th]:py-4 [&>th]:text-base [&>th]:text-dark [&>th]:dark:text-white">
-                        
                         {columns.map((column, index) => (
                             <TableHead 
                                 key={column.key} 
@@ -38,22 +37,30 @@ const TableCustom = ({ data, columns }: CustomerTableProps) => {
                 </TableHeader>
 
                 <TableBody>
-                    {data.map((item, index) => (
-                        <TableRow key={index} className="border-[#eee] dark:border-dark-3">
-                            {columns.map((column, colIndex) => (
-                                <TableCell 
-                                    key={column.key}
-                                    className={colIndex === 0 ? "w-[70px]" : colIndex === columns.length - 1 ? "xl:pr-7.5" : ""}
-                                >
-                                    {column?.render ? column.render(item[column.key], item) : item[column.key]}
-                                </TableCell>
-                            ))}
+                    {data.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={columns.length} className="py-6 text-center text-sm text-gray-500 dark:text-gray-400 font-bold">
+                                Không có dữ liệu để hiển thị
+                            </TableCell>
                         </TableRow>
-                    ))}
+                    ) : (
+                        data.map((item, index) => (
+                            <TableRow key={index} className="border-[#eee] dark:border-dark-3">
+                                {columns.map((column, colIndex) => (
+                                    <TableCell 
+                                        key={column.key}
+                                        className={colIndex === 0 ? "w-[70px]" : colIndex === columns.length - 1 ? "xl:pr-7.5" : ""}
+                                    >
+                                        {column.render ? column.render(item[column.key], item) : item[column.key]}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    )}
                 </TableBody>
             </Table>
         </div>
     )
 }
 
-export default TableCustom
+export default TableCustom;

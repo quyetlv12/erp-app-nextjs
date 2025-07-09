@@ -9,8 +9,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   await dbConnect();
 
   // Kiểm tra ID hợp lệ
-  const id = params.id;
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  const id = (await params).id
+    if (!mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ message: 'ID không hợp lệ' }, { status: 400 });
   }
 
@@ -32,8 +32,10 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   await dbConnect();
 
+  const id = (await params).id
+
   // Kiểm tra ID hợp lệ
-  if (!mongoose.Types.ObjectId.isValid(params.id)) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ message: 'Invalid ID' }, { status: 400 });
   }
 
@@ -45,7 +47,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ message: 'Thiếu thông tin bắt buộc' }, { status: 400 });
     }
 
-    const updatedCustomer = await Customer.findByIdAndUpdate(params.id, data, {
+    const updatedCustomer = await Customer.findByIdAndUpdate(id, data, {
       new: true,
     });
 
@@ -65,7 +67,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
   await dbConnect();
 
-  const { id } = params;
+  const id = (await params).id
+
 
   // Kiểm tra ID có hợp lệ không
   if (!mongoose.Types.ObjectId.isValid(id)) {

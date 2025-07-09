@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/Layouts/sidebar';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Toaster } from 'sonner';
-import { useAuth } from '../../../../stores/authStore';
+import { useAuth } from '../../../stores/authStore';
 
 interface Props {
     children: React.ReactNode;

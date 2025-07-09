@@ -5,13 +5,15 @@ import Loading from '@/components/loading';
 import TableCustom from '@/components/Tables/table';
 import Title from '@/components/title';
 import { Button } from '@/components/ui-elements/button';
-import { getAllForm } from '@/services/form';
-import { useQuery } from '@tanstack/react-query';
+import { deleteForm, getAllForm } from '@/services/form';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { IoMdAdd } from 'react-icons/io';
-import { FaDownload } from "react-icons/fa6";
+import { FaDownload, FaTrash } from "react-icons/fa6";
 import { downloadFile } from '../customers/config';
+import { confirmAlert } from 'react-confirm-alert';
+import { toast } from 'sonner';
 
 export default function FormTemplateManager() {
 
@@ -21,6 +23,44 @@ export default function FormTemplateManager() {
         queryKey: ["forms"],
         queryFn: getAllForm,
     });
+    const queryClient = useQueryClient();
+
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            return deleteForm(id);
+        },
+        onSuccess: () => {
+            toast.success("Xóa mẫu thành công");
+            queryClient.invalidateQueries({ queryKey: ["forms"] });
+        },
+        onError: (error: any) => {
+            toast.error(error?.message || "Xóa mẫu thất bại");
+        },
+    });
+
+    const handleDeleteForm = (item: any) => {
+        confirmAlert({
+            title: 'Xác nhận xoá khách hàng',
+            message: `Bạn có chắc chắn muốn xoá mẫu này"?`,
+            buttons: [
+                {
+                    label: 'Xoá',
+                    onClick: () => {
+                        deleteMutation.mutate(item._id);
+                    },
+                    className: "bg-red-500 text-white"
+                },
+                {
+                    label: 'Huỷ',
+                    onClick: () => { },
+                    className: "bg-gray-200"
+                }
+            ],
+            closeOnClickOutside: true,
+            overlayClassName: "z-[9999]"
+        });
+    };
 
 
 
@@ -70,6 +110,24 @@ export default function FormTemplateManager() {
             label: 'Người nhập',
             render: (value: string) => (
                 <p className='flex justify-end'>{value}</p>
+            ),
+        },
+        {
+            key: "actions",
+            label: "Hành động",
+            render: (_: any, item: any) => (
+                <div className="flex justify-end gap-2">
+
+                    <button
+                        title="Xóa"
+                        className="rounded p-1 text-red-600 hover:bg-red-100"
+                        onClick={() => handleDeleteForm(item)}
+                        disabled={deleteMutation.isPending && deleteMutation.variables === item._id}
+                    >
+                        <FaTrash size={25} />
+                    </button>
+
+                </div>
             ),
         },
     ];

@@ -12,7 +12,7 @@ import { useCallback, useState } from "react";
 import { confirmAlert } from "react-confirm-alert";
 import { IoMdAdd } from "react-icons/io";
 import { toast } from "sonner";
-import { useCustomerStore } from "../../../stores/customerStore";
+import { useCustomerStore } from "../../stores/customerStore";
 import { renderColumns } from "./config";
 
 const Page = () => {

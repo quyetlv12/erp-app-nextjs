@@ -15,3 +15,8 @@ export const importForm = async (data: FormData) => {
     });
     return response.data;
 }
+export const deleteForm = async (id: string) => {
+    const response = await httpClient.delete(`/forms/${id}`);
+    return response.data;
+  };
+  

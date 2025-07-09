@@ -120,7 +120,7 @@ export const renderColumns = (handleOpenModalDetail: any, handleOpenEditModal: a
                         className="rounded p-1 text-blue-600 hover:bg-blue-100"
                         onClick={() => handleOpenEditModal(item)}
                     >
-                        <FaEdit />
+                        <FaEdit size={20} />
                     </button>
                     <button
                         title="Xóa"
@@ -128,7 +128,7 @@ export const renderColumns = (handleOpenModalDetail: any, handleOpenEditModal: a
                         onClick={() => handleDeleteCustomer(item)}
                         disabled={deleteMutation.isPending && deleteMutation.variables === item._id}
                     >
-                        <FaTrash />
+                        <FaTrash size={20} />
                     </button>
                     {
                         item.form_link && <button
@@ -136,7 +136,7 @@ export const renderColumns = (handleOpenModalDetail: any, handleOpenEditModal: a
                             className="rounded p-1 text-green-600 hover:bg-green-100"
                             onClick={() => printFromUrl(item.form_link)}
                         >
-                            <FaPrint />
+                            <FaPrint size={20} />
                         </button>
                     }
 
@@ -146,7 +146,7 @@ export const renderColumns = (handleOpenModalDetail: any, handleOpenEditModal: a
                             className="rounded p-1 text-gray-600 hover:bg-gray-100"
                             onClick={() => downloadFile(item.form_link)}
                         >
-                            <FaDownload />
+                            <FaDownload size={20} />
                         </button>
                     }
 

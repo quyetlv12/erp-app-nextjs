@@ -16,8 +16,8 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createCustomer, updateCustomer } from '@/services/customer';
 import { toast } from 'sonner';
-import { useCustomerStore } from '../../../stores/customerStore';
-import { useAuth } from '../../../stores/authStore';
+import { useCustomerStore } from '../../stores/customerStore';
+import { useAuth } from '../../stores/authStore';
 
 const ModalAddCustomer = ({
   open,

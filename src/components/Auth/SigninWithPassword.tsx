@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import InputGroup from '../FormElements/InputGroup';
-import { useAuth } from '../../../stores/authStore';
+import { useAuth } from '../../stores/authStore';
 import { useEffect } from 'react';
 
 type FormValues = {

@@ -11,7 +11,7 @@ import { defaultForm, ImportFormData, importFormSchema } from './formConfig';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { importForm } from '@/services/form';
 import { toast } from 'sonner';
-import { useAuth } from '../../../stores/authStore';
+import { useAuth } from '../../stores/authStore';
 
 const ModalImportForm = ({
   open,
