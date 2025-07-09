@@ -1,52 +1,26 @@
 'use client';
 
-import ModalAddCustomer from '@/components/customers/modalAddCustomer';
 import ModalImportForm from '@/components/forms/modalImportForm';
+import Loading from '@/components/loading';
 import TableCustom from '@/components/Tables/table';
 import Title from '@/components/title';
 import { Button } from '@/components/ui-elements/button';
-import React, { useRef, useState } from 'react';
-import { FaDownload, FaEdit, FaPrint, FaTrash } from 'react-icons/fa';
+import { getAllForm } from '@/services/form';
+import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
+import { useState } from 'react';
 import { IoMdAdd } from 'react-icons/io';
-
-interface Template {
-    name: string;
-    content: string;
-    placeholders: string[];
-}
-
-// giả định dữ liệu khách hàng
-const mockCustomer = {
-    'Tên khách hàng': 'Công ty ABC',
-    'Mã hợp đồng': 'HD-001',
-    'Mã số thuế': '123456789',
-    'Ngày cấp GĐKKD': '01/01/2023',
-};
+import { FaDownload } from "react-icons/fa6";
+import { downloadFile } from '../customers/config';
 
 export default function FormTemplateManager() {
-    const [templates, setTemplates] = useState<Template[]>([]);
-    const [name, setName] = useState('');
-    const fileRef = useRef<HTMLInputElement>(null);
 
-    const handleUpload = async () => {
-        const file = fileRef.current?.files?.[0];
-        if (!file || !name) return alert('Vui lòng chọn file và nhập tên biểu mẫu');
 
-        const text = await file.text();
 
-        const placeholders = Array.from(new Set([...text.matchAll(/\{(.*?)\}/g)].map(m => m[1])));
-
-        const newTemplate: Template = {
-            name,
-            content: text,
-            placeholders,
-        };
-
-        setTemplates(prev => [...prev, newTemplate]);
-        setName('');
-        if (fileRef.current) fileRef.current.value = '';
-    };
-
+    const { data, isLoading } = useQuery({
+        queryKey: ["forms"],
+        queryFn: getAllForm,
+    });
 
 
 
@@ -63,15 +37,40 @@ export default function FormTemplateManager() {
             label: 'Tên biểu mẫu',
         },
         {
+            key: 'placeholders',
+            label: 'Giá trị',
+            render: (value: any) => (
+                <ul>
+                    {
+                        value.map((item: string, index: number) => (
+                            <li key={index}>{item}</li>
+                        ))
+                    }
+                </ul>
+            ),
+        },
+        {
             key: 'createdAt',
             label: 'Ngày tạo',
             render: (value: string) => (
-                <span>{value}</span>
+                <span>{dayjs(value).format('DD-MM-YYYY')}</span>
+            ),
+        },
+        {
+            key: 'file_link',
+            label: 'Đường dẫn file',
+            render: (value: string) => (
+                <span>
+                    <a href={value} target='_blank' className='underline text-blue-500'>Xem file</a>
+                </span>
             ),
         },
         {
             key: 'createdBy',
             label: 'Người nhập',
+            render: (value: string) => (
+                <p className='flex justify-end'>{value}</p>
+            ),
         },
     ];
 
@@ -90,24 +89,39 @@ export default function FormTemplateManager() {
         setIsModalOpen(true);
     };
 
+    if (isLoading) {
+        return <Loading />
+    }
+    const file_template_url = 'https://res.cloudinary.com/djuggkbyg/raw/upload/v1752034350/forms/ov8acfpbps46durpmokt.txt'
 
-    // const dataWithIndex = customerData.map((item, idx) => ({ ...item, stt: idx + 1 }));
+    const dataWithIndex = data?.data.map((item: any, idx: number) => ({ ...item, stt: idx + 1 }));
     return (
         <div>
             <div className='flex justify-between items-center mb-10'>
                 <Title title='Quản lý biểu mẫu' />
-                <Button
-                    label="Thêm biểu mẫu"
-                    variant="primary"
-                    size="small"
-                    icon={<IoMdAdd size={30} />}
-                    className='rounded-lg'
-                    onClick={handleOpenodal}
+                <div className='flex gap-2'>
+                    <Button
+                        label="Tải mẫu"
+                        variant="primary"
+                        size="small"
+                        icon={<FaDownload size={20} />}
+                        className='rounded-lg'
+                        onClick={() => downloadFile(file_template_url)}
 
-                />
+                    />
+                    <Button
+                        label="Thêm biểu mẫu"
+                        variant="primary"
+                        size="small"
+                        icon={<IoMdAdd size={30} />}
+                        className='rounded-lg'
+                        onClick={handleOpenodal}
+
+                    />
+                </div>
             </div>
             <TableCustom
-                data={[]}
+                data={dataWithIndex || []}
                 columns={columns}
             />
 

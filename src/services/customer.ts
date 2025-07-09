@@ -1,4 +1,4 @@
-import { httpClient } from "@/api/httpClient";
+import httpClient from "@/api/httpClient";
 import { CustomerFormData } from "@/interfaces";
 
 export const getCustomers = async ({ queryKey }: { queryKey: any }) => {

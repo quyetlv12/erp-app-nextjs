@@ -8,6 +8,10 @@ import { z } from 'zod';
 import { IoMdClose } from 'react-icons/io';
 import InputField from '@/components/input';
 import { defaultForm, ImportFormData, importFormSchema } from './formConfig';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { importForm } from '@/services/form';
+import { toast } from 'sonner';
+import { useAuth } from '../../../stores/authStore';
 
 const ModalImportForm = ({
   open,
@@ -20,17 +24,49 @@ const ModalImportForm = ({
     resolver: zodResolver(importFormSchema),
     defaultValues: defaultForm,
   });
+  const { user } = useAuth()
 
-  const { handleSubmit, reset } = methods;
+  const { handleSubmit, reset, formState: { errors } } = methods;
+  const queryClient = useQueryClient();
 
-  const handleImport = (data: ImportFormData) => {
-    console.log('Tên biểu mẫu:', data.formName);
-    if (data.file && data.file.length > 0) {
-      console.log('File:', data.file[0]);
+  console.log("errors", errors);
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['importForm'],
+    mutationFn: importForm,
+    onSuccess: () => {
+      toast.success('Thêm dữ liệu hàng thành công');
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      reset()
+      onClose();
+
+
     }
-    onClose();
-    reset();
+  })
+  const handleImport = async (data: ImportFormData) => {
+    const formData = new FormData();
+    formData.append('name', data.name);
+
+
+    if (!data.file || data.file.length === 0) return;
+
+    const file = data.file[0];
+    formData.append('file', file);
+
+    const text = await file.text();
+
+    const matches = text.match(/{([^{}]+)}/g) || [];
+    const placeholders = [...new Set(matches.map((m: any) => m.trim()))]; // loại bỏ trùng lặp
+
+    formData.append('placeholders', JSON.stringify(placeholders));
+
+
+    if (user) formData.append('createdBy', user?.name);
+
+
+    mutate(formData);
   };
+
 
   return (
     <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
@@ -64,7 +100,7 @@ const ModalImportForm = ({
                 <div className="space-y-6">
                   <div>
                     <InputField
-                      name="formName"
+                      name="name"
                       label="Tên biểu mẫu"
                       type="text"
                       placeholder="Nhập tên biểu mẫu"
@@ -95,7 +131,10 @@ const ModalImportForm = ({
                     type="submit"
                     className="px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium transition"
                   >
-                    Nhập dữ liệu
+                    {
+                      isPending ? 'Đang xử lý ...' : 'Nhập dữ liệu'
+                    }
+
                   </button>
                 </div>
               </form>

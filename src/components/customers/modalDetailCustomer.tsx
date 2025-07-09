@@ -1,11 +1,10 @@
 'use client';
 
-import { CustomerFormData } from '@/interfaces';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useEffect, useState } from 'react';
-import { IoMdClose } from 'react-icons/io';
-import { customerTypes, inChargeOptions, defaultForm } from './formConfig';
 import dayjs from 'dayjs';
+import { IoMdClose } from 'react-icons/io';
+import { useCustomerStore } from '../../../stores/customerStore';
+import { customerTypes, inChargeOptions } from './formConfig';
 
 const getLabel = (options: { label: string; value: string }[], value: string) => {
     const found = options.find(opt => opt.value === value);
@@ -15,17 +14,17 @@ const getLabel = (options: { label: string; value: string }[], value: string) =>
 const ModalDetailCustomer = ({
     open,
     onClose,
-    initialData,
 }: {
     open: boolean;
     onClose: () => void;
-    initialData?: any;
 }) => {    
-    const [data, setData] = useState<CustomerFormData>(defaultForm);
 
-    useEffect(() => {
-        setData(initialData || defaultForm);
-    }, [initialData, open]);
+
+
+    const {
+        selectedCustomer,
+    } = useCustomerStore();
+
 
     return (
         <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
@@ -58,13 +57,13 @@ const ModalDetailCustomer = ({
                                     1. Thông tin chung
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <DetailField label="Mã khách hàng" value={data.code} />
-                                    <DetailField label="Người phụ trách" value={getLabel(inChargeOptions, data.inCharge)} />
-                                    <DetailField label="Phân loại khách hàng" value={getLabel(customerTypes, data.type)} />
-                                    <DetailField label="Người tạo" value={data.createdBy} />
+                                    <DetailField label="Mã khách hàng" value={selectedCustomer?.code} />
+                                    <DetailField label="Người phụ trách" value={getLabel(inChargeOptions, selectedCustomer?.inCharge ?? '')} />
+                                    <DetailField label="Phân loại khách hàng" value={getLabel(customerTypes, selectedCustomer?.type ?? '')} />
+                                    <DetailField label="Người tạo" value={selectedCustomer?.createdBy} />
                                     <DetailField
                                         label="Ngày tạo"
-                                        value={data.createdAt ? dayjs(data.createdAt).format('DD/MM/YYYY') : undefined}
+                                        value={selectedCustomer?.createdAt ? dayjs(selectedCustomer.createdAt).format('DD/MM/YYYY') : undefined}
                                     />
                                 </div>
                             </div>
@@ -75,15 +74,15 @@ const ModalDetailCustomer = ({
                                     2. Thông tin khách hàng
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <DetailField label="Tên khách hàng" value={data.name} />
-                                    <DetailField label="Mã số thuế" value={data.taxCode} />
-                                    <DetailField label="Ngày cấp giấy phép KD" value={data.businessLicenseDate} />
-                                    <DetailField label="Người đại diện" value={data.representative} />
-                                    <DetailField label="Chức vụ" value={data.position} />
-                                    <DetailField label="Email" value={data.email} />
+                                    <DetailField label="Tên khách hàng" value={selectedCustomer?.name} />
+                                    <DetailField label="Mã số thuế" value={selectedCustomer?.taxCode} />
+                                    <DetailField label="Ngày cấp giấy phép KD" value={selectedCustomer?.businessLicenseDate} />
+                                    <DetailField label="Người đại diện" value={selectedCustomer?.representative} />
+                                    <DetailField label="Chức vụ" value={selectedCustomer?.position} />
+                                    <DetailField label="Email" value={selectedCustomer?.email} />
                                 </div>
-                                <DetailField label="Số điện thoại" value={data.phone} className="py-5" />
-                                <DetailField label="Địa chỉ" value={data.address} className="md:col-span-2" />
+                                <DetailField label="Số điện thoại" value={selectedCustomer?.phone} className="py-5" />
+                                <DetailField label="Địa chỉ" value={selectedCustomer?.address} className="md:col-span-2" />
                             </div>
 
                             {/* Hành động */}
@@ -110,7 +109,7 @@ const DetailField = ({
     className = '',
 }: {
     label: string;
-    value: string | undefined;
+    value: string | undefined | null;
     className?: string;
 }) => (
     <div className={`flex flex-col ${className}`}>

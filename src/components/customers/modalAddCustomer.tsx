@@ -15,25 +15,30 @@ import {
 } from './formConfig';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createCustomer, updateCustomer } from '@/services/customer';
-import { toast } from 'sonner'; // hoặc bất kỳ toast nào bạn đang dùng
+import { toast } from 'sonner';
+import { useCustomerStore } from '../../../stores/customerStore';
+import { useAuth } from '../../../stores/authStore';
 
 const ModalAddCustomer = ({
   open,
   onClose,
-  initialData,
 }: {
   open: boolean;
   onClose: () => void;
-  initialData?: CustomerFormData;
 }) => {
-    console.log("initialData" , initialData);
-    
+  const {
+    selectedCustomer,
+    resetSelectCustomer
+  } = useCustomerStore();
+
+  const {user } = useAuth()
+
   const methods = useForm<CustomerFormData>({
     defaultValues: defaultForm,
     resolver: zodResolver(customerFormSchema),
   });
 
-  const { handleSubmit, reset, watch } = methods;
+  const { handleSubmit, reset } = methods;
 
   const queryClient = useQueryClient();
 
@@ -50,7 +55,9 @@ const ModalAddCustomer = ({
   });
 
   const updateMutation = useMutation({
-    mutationFn: updateCustomer,
+    mutationFn: async ({ id, data }: { id: string; data: CustomerFormData }) => {
+      return updateCustomer(id, data);
+    },
     onSuccess: () => {
       toast.success('Cập nhật khách hàng thành công');
       queryClient.invalidateQueries({ queryKey: ['customers'] });
@@ -62,19 +69,24 @@ const ModalAddCustomer = ({
   });
 
   const handleAddCustomer = (data: CustomerFormData) => {
-    if (initialData) {
-      updateMutation.mutate(initialData['id'] , data as any);
+    const _data = {...data , createdBy : user?.name}
+    if (selectedCustomer) {
+      updateMutation.mutate({ id: selectedCustomer['_id'], data });
     } else {
-      addMutation.mutate(data);
+      addMutation.mutate(_data);
     }
   };
 
   useEffect(() => {
-    reset(initialData || defaultForm);
-  }, [initialData, open, reset]);
+    reset(selectedCustomer || defaultForm);
+  }, [selectedCustomer, open, reset]);
 
   return (
-    <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
+    <Dialog.Root open={open} onOpenChange={(open) => {
+      reset()
+      resetSelectCustomer()
+      !open && onClose()
+    }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/30 z-[99998]" />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-[99999] w-full max-w-2xl bg-white p-0 rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 h-[90vh] overflow-auto scroll-auto">
@@ -82,17 +94,20 @@ const ModalAddCustomer = ({
             <div className="flex justify-between items-center bg-blue-50 p-5">
               <div className="border-b border-gray-100 rounded-t-lg">
                 <Dialog.Title className="text-2xl font-bold text-blue-700 mb-1">
-                  {initialData ? 'Sửa thông tin khách hàng' : 'Thêm mới khách hàng'}
+                  {selectedCustomer ? 'Sửa thông tin khách hàng' : 'Thêm mới khách hàng'}
                 </Dialog.Title>
                 <p className="text-gray-500 text-sm">
-                  {initialData
+                  {selectedCustomer
                     ? 'Cập nhật thông tin khách hàng trong hệ thống'
                     : 'Điền thông tin để thêm khách hàng mới'}
                 </p>
               </div>
               <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 text-2xl z-10"
+                onClick={() => {
+                  reset()
+                  resetSelectCustomer()
+                  onClose()
+                }} className="text-gray-500 hover:text-gray-700 text-2xl z-10"
                 aria-label="Đóng"
                 type="button"
               >
@@ -114,7 +129,7 @@ const ModalAddCustomer = ({
                       name="code"
                       label="Mã khách hàng"
                       required
-                      disabled={!!initialData}
+                      disabled={!!selectedCustomer}
                     />
                     <InputField
                       name="inCharge"
@@ -182,7 +197,7 @@ const ModalAddCustomer = ({
                   >
                     {(addMutation.isPending || updateMutation.isPending)
                       ? 'Đang xử lý...'
-                      : initialData?.id ? 'Cập nhật' : 'Thêm mới'}
+                      : selectedCustomer?._id ? 'Cập nhật' : 'Thêm mới'}
                   </button>
                 </div>
               </form>

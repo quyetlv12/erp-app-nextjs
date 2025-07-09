@@ -1,8 +1,21 @@
 import axios from "axios";
 
-export const httpClient = axios.create({
-    baseURL : "http://localhost:3000/api",
-    headers : {
-        "Content-Type" : "application/json"
+const httpClient = axios.create({
+    baseURL: "http://localhost:3000/api",
+    headers: {
+        "Content-Type": "application/json"
     }
 })
+
+
+
+httpClient.interceptors.request.use(function (config) {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = "Bearer " + token;
+    }
+    return config;
+});
+
+
+export default httpClient;

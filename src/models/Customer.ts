@@ -15,6 +15,7 @@ export interface ICustomer extends Document {
   createdAt: Date;
   updatedAt: Date;
   createdBy: string;
+  form_link?: string;
 }
 
 const CustomerSchema: Schema = new Schema(
@@ -31,6 +32,8 @@ const CustomerSchema: Schema = new Schema(
     phone: { type: String, required: true },
     address: { type: String, required: true },
     createdBy: { type: String, required: false },
+    form_link: { type: String, required: false },
+    
   },
   {
     timestamps: true,

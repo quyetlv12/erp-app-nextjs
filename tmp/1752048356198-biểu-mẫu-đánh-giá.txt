@@ -1,0 +1,10 @@
+Kính gửi {lee uyeets},
+
+Chúng tôi xin gửi đến quý công ty biểu mẫu đánh giá sơ bộ.
+
+Thông tin khách hàng:
+- Mã khách hàng: {KH00012}
+- Mã số thuế: {Mã số thuế}
+- Ngày cấp GĐKKD: {Ngày cấp GĐKKD}
+- Người đại diện: {Người đại diện}
+- Chức vụ: {Chức vụ}

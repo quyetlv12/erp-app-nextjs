@@ -8,9 +8,9 @@ const queryClient = new QueryClient();
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" attribute="class">
-      <SidebarProvider>{children}</SidebarProvider>
-    </ThemeProvider>
+      <ThemeProvider defaultTheme="light" attribute="class">
+        <SidebarProvider>{children}</SidebarProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

@@ -32,7 +32,8 @@ export function Sidebar() {
         });
       });
     });
-  }, [pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, expandedItems]);
 
   return (
     <>

@@ -478,3 +478,92 @@ input[type="search"]::-webkit-search-cancel-button {
 .custom-gradient-1 {
   background-image: linear-gradient(145deg, #eef 0%, #fff8fc 100%);
 }
+
+/* Overlay nền mờ */
+.react-confirm-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  backdrop-filter: blur(2px);
+}
+
+/* Hộp thoại chính */
+.react-confirm-alert {
+  border-radius: 12px;
+  padding: 24px 28px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  z-index: 9999;
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* Animation xuất hiện */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Tiêu đề */
+.react-confirm-alert h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+/* Mô tả */
+.react-confirm-alert p {
+  font-size: 15px;
+  color: #4b5563;
+  margin-bottom: 24px;
+}
+
+/* Nhóm nút */
+.react-confirm-alert-button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* Nút chung */
+.react-confirm-alert-button-group button {
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Nút xoá */
+.react-confirm-alert-button-group button:first-child {
+  background-color: #dc2626;
+  color: white;
+}
+
+.react-confirm-alert-button-group button:first-child:hover {
+  background-color: #b91c1c;
+}
+
+/* Nút huỷ */
+.react-confirm-alert-button-group button:last-child {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.react-confirm-alert-button-group button:last-child:hover {
+  background-color: #e5e7eb;
+}
