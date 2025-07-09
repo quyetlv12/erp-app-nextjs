@@ -29,8 +29,6 @@ export async function POST(req: NextRequest) {
   const placeholders = formData.get('placeholders')?.toString() || '[]';
   const placeholdersArr = JSON.parse(placeholders);
 
-  const customerCode = placeholdersArr[1]?.replace(/[{}]/g, '').trim() || '';
-
   let file_link = '';
 
   if (file) {
@@ -65,18 +63,5 @@ export async function POST(req: NextRequest) {
     file_link,
     createdBy
   });
-
-  // 6. Gán form_link cho Customer nếu tìm thấy mã KH
-  if (customerCode) {
-    await Customer.findOneAndUpdate(
-      { code: customerCode },
-      {
-        $set: {
-          form_link: file_link,
-        },
-      }
-    );
-  }
-
   return NextResponse.json(newForm, { status: 201 });
 }

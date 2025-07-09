@@ -14,6 +14,7 @@ import { IoMdAdd } from "react-icons/io";
 import { toast } from "sonner";
 import { useCustomerStore } from "../../stores/customerStore";
 import { renderColumns } from "./config";
+import ModalExportForm from "@/components/customers/modalExportForm";
 
 const Page = () => {
     const {
@@ -29,6 +30,7 @@ const Page = () => {
     });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpenForm, setIsModalOpenForm] = useState(false);
 
     const [isModalOpenDetail, setIsModalOpenDetail] = useState(false);
 
@@ -67,6 +69,19 @@ const Page = () => {
         setIsModalOpenDetail(true);
     };
 
+
+    const handleCloseModalForm = () => {
+        resetSelectCustomer();
+        setIsModalOpenForm(false);
+    };
+
+    const handleOpenModalForm = (item: any) => {
+        console.log("item" , item);
+        
+        selectCustomer(item);
+        setIsModalOpenForm(true);
+    };
+
     const handleDeleteCustomer = (item: CustomerFormData) => {
         confirmAlert({
             title: 'Xác nhận xoá khách hàng',
@@ -93,7 +108,9 @@ const Page = () => {
     const columns: any = renderColumns(handleOpenModalDetail,
         handleOpenEditModal,
         handleDeleteCustomer,
-        deleteMutation);
+        deleteMutation,
+        handleOpenModalForm
+    );
 
     const dataWithIndex = useCallback(() => {
         if (!data?.data) return [];
@@ -126,6 +143,10 @@ const Page = () => {
             <ModalDetailCustomer
                 open={isModalOpenDetail}
                 onClose={handleCloseModalDetail}
+            />
+            <ModalExportForm
+                open={isModalOpenForm}
+                onClose={handleCloseModalForm}
             />
         </div>
     );

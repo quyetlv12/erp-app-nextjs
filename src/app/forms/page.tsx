@@ -41,7 +41,7 @@ export default function FormTemplateManager() {
 
     const handleDeleteForm = (item: any) => {
         confirmAlert({
-            title: 'Xác nhận xoá khách hàng',
+            title: 'Xác nhận xoá mẫu',
             message: `Bạn có chắc chắn muốn xoá mẫu này"?`,
             buttons: [
                 {
@@ -158,15 +158,6 @@ export default function FormTemplateManager() {
             <div className='flex justify-between items-center mb-10'>
                 <Title title='Quản lý biểu mẫu' />
                 <div className='flex gap-2'>
-                    <Button
-                        label="Tải mẫu"
-                        variant="primary"
-                        size="small"
-                        icon={<FaDownload size={20} />}
-                        className='rounded-lg'
-                        onClick={() => downloadFile(file_template_url)}
-
-                    />
                     <Button
                         label="Thêm biểu mẫu"
                         variant="primary"
