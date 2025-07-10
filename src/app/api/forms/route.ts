@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       folder: 'forms',
       resource_type: 'raw', 
       use_filename: true,
-       format: 'txt'
+      format: 'docx'
     });
 
     file_link = uploadResult.secure_url;

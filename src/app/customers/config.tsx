@@ -1,8 +1,9 @@
 import dayjs from "dayjs";
+import Docxtemplater from "docxtemplater";
 import { saveAs } from "file-saver";
+import * as mammoth from "mammoth";
+import PizZip from "pizzip";
 import { FaDownload, FaEdit, FaPrint, FaTrash } from "react-icons/fa";
-import { toast } from "sonner";
-
 export const customerTypes = [
   "KH tiềm năng",
   "KH đã chốt",
@@ -11,65 +12,101 @@ export const customerTypes = [
 ];
 
 export const downloadFile = async (templatePath: string, customerData: any) => {
-  // 1. Tải file mẫu từ đường dẫn
-  const res = await fetch(templatePath);
-  const templateText = await res.text();
+  try {
+    // 1. lấy dữ liệu
+    const res = await fetch(templatePath);
+    const arrayBuffer = await res.arrayBuffer();
 
-  // 2. Thay thế biến trong mẫu
-  const filledText = templateText.replace(/\{(.*?)\}/g, (_, key) => {
-    const value = customerData[key.trim()];
-    return value !== undefined && value !== null ? String(value) : "-";
-  });
+    // 2. chuyển dữ liệu từ link thành file docx
+    const zip = new PizZip(arrayBuffer);
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+    });
 
-  // 3. Tạo và tải file
-  const blob = new Blob([filledText], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `form-${customerData.code || "export"}.txt`;
-  a.click();
-  URL.revokeObjectURL(url);
+    // 3. thay thế các biến
+    doc.setData(customerData);
+
+    try {
+      doc.render(); // May throw if missing keys
+    } catch (error) {
+      console.error("Render error:", error);
+      return;
+    }
+
+    // 4. tạo file 
+    const out = doc.getZip().generate({
+      type: "blob",
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+
+    // 5. lưu file
+    saveAs(out, `hop_dong_${customerData.code || "khach_hang"}.docx`);
+  } catch (err) {
+    console.error("Lỗi tạo file:", err);
+  }
 };
 
 export const printFilledTemplate = async (
   templatePath: string,
-  customerData: any,
+  customerData: any
 ) => {
   try {
+    // 1. Tải template .docx
     const res = await fetch(templatePath);
-    if (!res.ok) throw new Error("Không thể tải mẫu dữ liệu");
+    if (!res.ok) throw new Error("Không thể tải file Word mẫu");
 
-    const templateText = await res.text();
+    const arrayBuffer = await res.arrayBuffer();
 
-    const filledText = templateText.replace(/\{(.*?)\}/g, (_, key) => {
-      const trimmedKey = key.trim();
-      const value = customerData[trimmedKey];
-      return value !== undefined && value !== null ? String(value) : "-";
+    // 2. Dùng Docxtemplater để đổ dữ liệu
+    const zip = new PizZip(arrayBuffer);
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
     });
 
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Không thể mở cửa sổ in");
-      return;
+    doc.setData(customerData);
+
+    try {
+      doc.render();
+    } catch (error) {
+      console.error("Lỗi render template:", error);
+      throw new Error("Thiếu thông tin cho các placeholder");
     }
 
-    // Ghi nội dung và in
+    // 3. Sinh buffer DOCX mới
+    const updatedBuffer = doc.getZip().generate({ type: "arraybuffer" });
+
+    // 4. Dùng mammoth chuyển sang HTML
+    const { value: html } = await mammoth.convertToHtml({ arrayBuffer: updatedBuffer });
+
+    // 5. In HTML
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) throw new Error("Không thể mở cửa sổ in");
+
     printWindow.document.write(`
-        <html>
-          <head>
-            <title>In dữ liệu khách hàng</title>
-            <style>
-              body { font-family: Arial, sans-serif; white-space: pre-wrap; padding: 20px; }
-            </style>
-          </head>
-          <body>${filledText}</body>
-        </html>
-      `);
+      <html>
+        <head>
+          <title>In hợp đồng</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 30px;
+              line-height: 1.6;
+            }
+          </style>
+        </head>
+        <body>${html}</body>
+      </html>
+    `);
+
     printWindow.document.close();
     printWindow.focus();
     printWindow.print();
   } catch (error: any) {
-    toast.error(error?.message || "Lỗi khi in file");
+    console.error(error);
+    alert(error?.message || "Lỗi khi in file");
   }
 };
 

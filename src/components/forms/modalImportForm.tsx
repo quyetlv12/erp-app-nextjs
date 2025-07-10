@@ -1,18 +1,17 @@
 'use client';
 
-import React from 'react';
-import * as Dialog from '@radix-ui/react-dialog';
-import { useForm, FormProvider } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { IoMdClose } from 'react-icons/io';
 import InputField from '@/components/input';
-import { defaultForm, ImportFormData, importFormSchema } from './formConfig';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { importForm } from '@/services/form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as Dialog from '@radix-ui/react-dialog';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Docxtemplater from "docxtemplater";
+import PizZip from "pizzip";
+import { FormProvider, useForm } from 'react-hook-form';
+import { IoMdClose } from 'react-icons/io';
 import { toast } from 'sonner';
 import { useAuth } from '../../stores/authStore';
-
+import { defaultForm, ImportFormData, importFormSchema } from './formConfig';
 const ModalImportForm = ({
   open,
   onClose,
@@ -45,28 +44,38 @@ const ModalImportForm = ({
   })
   const handleImport = async (data: ImportFormData) => {
     const formData = new FormData();
-    formData.append('name', data.name);
-
+    formData.append("name", data.name);
 
     if (!data.file || data.file.length === 0) return;
 
     const file = data.file[0];
-    formData.append('file', file);
+    formData.append("file", file);
 
-    const text = await file.text();
+    // Đọc nội dung file DOCX
+    const arrayBuffer = await file.arrayBuffer();
 
-    const matches = text.match(/{([^{}]+)}/g) || [];
-    const placeholders = [...new Set(matches.map((m: any) => m.trim()))]; // loại bỏ trùng lặp
+    try {
+      const zip = new PizZip(arrayBuffer);
+      const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+      });
 
-    formData.append('placeholders', JSON.stringify(placeholders));
+      // Trích xuất tất cả placeholder (biến trong file Word)
+      const tags = doc.getFullText().match(/{([^{}]+)}/g) || [];
+      const placeholders = [...new Set(tags.map((m) => m.replace(/[{}]/g, "").trim()))];
 
+      formData.append("placeholders", JSON.stringify(placeholders));
+    } catch (err) {
+      console.error("Lỗi đọc file DOCX:", err);
+      toast.error("Không thể đọc nội dung file Word");
+      return;
+    }
 
-    if (user) formData.append('createdBy', user?.name);
-
+    if (user) formData.append("createdBy", user?.name);
 
     mutate(formData);
   };
-
 
   return (
     <Dialog.Root open={open} onOpenChange={(open) => !open && onClose()}>
